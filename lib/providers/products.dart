@@ -63,6 +63,7 @@ class Products with ChangeNotifier {
 
   Future<void> addProduct(Product newProduct) {
     const url = 'https://kaings-flutter-proj6.firebaseio.com/products.json';
+    // const url = 'https://kaings-flutter-proj6.firebaseio.com/products';  // test error handling
 
     return http
         .post(url,
@@ -87,6 +88,10 @@ class Products with ChangeNotifier {
       _items.add(addedProduct);
 
       notifyListeners();
+    }).catchError((err) {
+      print('addProduct_error..... $err');
+
+      throw err; // this will return Future as well
     });
   }
 
