@@ -61,33 +61,28 @@ class Products with ChangeNotifier {
     return _items.firstWhere((item) => item.id == id);
   }
 
-  void addProduct(Product newProduct) {
+  Future<void> addProduct(Product newProduct) {
     const url = 'https://kaings-flutter-proj6.firebaseio.com/products.json';
 
-    http
-        .post(
-      url,
-      body: json.encode(
-        {
-          'title': newProduct.title,
-          'description': newProduct.description,
-          'imageUrl': newProduct.imageUrl,
-          'price': newProduct.price,
-          'isFavorite': newProduct.isFavorite,
-        },
-      ),
-    )
+    return http
+        .post(url,
+            body: json.encode({
+              'title': newProduct.title,
+              'description': newProduct.description,
+              'imageUrl': newProduct.imageUrl,
+              'price': newProduct.price,
+              'isFavorite': newProduct.isFavorite,
+            }))
         .then((response) {
       print(
           'addProduct_response..... $response ----- ${json.decode(response.body)}');
 
       final addedProduct = new Product(
-        id: json.decode(response.body)['name'],
-        title: newProduct.title,
-        description: newProduct.description,
-        price: newProduct.price,
-        imageUrl: newProduct.imageUrl,
-      );
+          id: json.decode(response.body)['name'],
+          title: newProduct.title,
+          description: newProduct.description,
+          price: newProduct.price,
+          imageUrl: newProduct.imageUrl);
 
       _items.add(addedProduct);
 
