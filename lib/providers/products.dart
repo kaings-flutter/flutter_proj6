@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http; // (optional) using prefix `http`
+import 'dart:convert'; // enable json.encode or decode
+
 import 'product.dart';
 
 class Products with ChangeNotifier {
@@ -59,10 +62,37 @@ class Products with ChangeNotifier {
   }
 
   void addProduct(Product newProduct) {
-    _items.add(newProduct); // to add new product at the end of List
-    // _items.insert(0, newProduct); // to add new product at the beginning of List
+    const url = 'https://kaings-flutter-proj6.firebaseio.com/products.json';
 
-    notifyListeners();
+    http
+        .post(
+      url,
+      body: json.encode(
+        {
+          'title': newProduct.title,
+          'description': newProduct.description,
+          'imageUrl': newProduct.imageUrl,
+          'price': newProduct.price,
+          'isFavorite': newProduct.isFavorite,
+        },
+      ),
+    )
+        .then((response) {
+      print(
+          'addProduct_response..... $response ----- ${json.decode(response.body)}');
+
+      final addedProduct = new Product(
+        id: json.decode(response.body)['name'],
+        title: newProduct.title,
+        description: newProduct.description,
+        price: newProduct.price,
+        imageUrl: newProduct.imageUrl,
+      );
+
+      _items.add(addedProduct);
+
+      notifyListeners();
+    });
   }
 
   void removeProduct(String id) {
