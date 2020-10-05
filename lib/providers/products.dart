@@ -91,6 +91,19 @@ class Products with ChangeNotifier {
     }
   }
 
+  void fetchProducts() async {
+    const url = 'https://kaings-flutter-proj6.firebaseio.com/products.json';
+
+    try {
+      final response = await http.get(url);
+
+      print('fetchProducts_response..... ${json.decode(response.body)}');
+    } catch (err) {
+      print('fetchProducts_err..... $err');
+      throw err;
+    }
+  }
+
   void removeProduct(String id) {
     _items.removeWhere((item) => item.id == id);
 
