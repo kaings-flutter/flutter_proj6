@@ -53,7 +53,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
   }
 
-  void _saveForm() {
+  void _saveForm() async {
     // `currentState.validate()` triggers validators to validate value
     // returns true if all validators return no error
     // returns false if any validator returns error
@@ -68,16 +68,19 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
     print('saveForm..... ${product}');
 
-    Provider.of<Products>(context, listen: false)
-        .addProduct(new Product(
-      id: DateTime.now().toString(),
-      title: product['title'],
-      description: product['description'],
-      price: product['price'],
-      imageUrl: product['imageUrl'],
-    ))
-        .catchError((err) {
-      return showDialog(
+    try {
+      await Provider.of<Products>(context, listen: false)
+          .addProduct(new Product(
+        id: DateTime.now().toString(),
+        title: product['title'],
+        description: product['description'],
+        price: product['price'],
+        imageUrl: product['imageUrl'],
+      ));
+
+      Navigator.of(context).pop();
+    } catch (err) {
+      showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
           title: Text('Error occurs!'),
@@ -87,20 +90,16 @@ class _EditProductScreenState extends State<EditProductScreen> {
               child: Text('OK'),
               onPressed: () {
                 Navigator.of(ctx).pop();
-                setState(() {
-                  _isLoading = false;
-                });
               },
             )
           ],
         ),
       );
-    }).then((_) {
+    } finally {
       setState(() {
         _isLoading = false;
       });
-      Navigator.of(context).pop();
-    });
+    }
   }
 
   @override

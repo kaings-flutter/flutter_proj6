@@ -61,22 +61,19 @@ class Products with ChangeNotifier {
     return _items.firstWhere((item) => item.id == id);
   }
 
-  Future<void> addProduct(Product newProduct) {
+  Future<void> addProduct(Product newProduct) async {
     const url = 'https://kaings-flutter-proj6.firebaseio.com/products.json';
-    // const url = 'https://kaings-flutter-proj6.firebaseio.com/products';  // test error handling
+    // const url = 'https://kaings-flutter-proj6.firebaseio.com/products'; // test error handling
 
-    return http
-        .post(url,
-            body: json.encode({
-              'title': newProduct.title,
-              'description': newProduct.description,
-              'imageUrl': newProduct.imageUrl,
-              'price': newProduct.price,
-              'isFavorite': newProduct.isFavorite,
-            }))
-        .then((response) {
-      print(
-          'addProduct_response..... $response ----- ${json.decode(response.body)}');
+    try {
+      final response = await http.post(url,
+          body: json.encode({
+            'title': newProduct.title,
+            'description': newProduct.description,
+            'imageUrl': newProduct.imageUrl,
+            'price': newProduct.price,
+            'isFavorite': newProduct.isFavorite,
+          }));
 
       final addedProduct = new Product(
           id: json.decode(response.body)['name'],
@@ -88,11 +85,10 @@ class Products with ChangeNotifier {
       _items.add(addedProduct);
 
       notifyListeners();
-    }).catchError((err) {
-      print('addProduct_error..... $err');
-
-      throw err; // this will return Future as well
-    });
+    } catch (err) {
+      print('addProduct_err..... $err');
+      throw err;
+    }
   }
 
   void removeProduct(String id) {
