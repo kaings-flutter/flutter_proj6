@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http; // (optional) using prefix `http`
 import 'dart:convert'; // enable json.encode or decode
 
 import 'product.dart';
+import '../models/http_exception.dart';
 
 class Products with ChangeNotifier {
   // moved all dummy items here since this the Products state is managed here
@@ -128,7 +129,7 @@ class Products with ChangeNotifier {
     // In this case, it will immediately remove the item, and then send request to server
     // if error occurs, the removed item will be restored
 
-    final url = 'https://kaings-flutter-proj6.firebaseio.com/products/$id.json';
+    final url = 'https://kaings-flutter-proj6.firebaseio.com/products/$id';
     final toBeRemovedProductIndex =
         _items.indexWhere((product) => product.id == id);
     var toBeRemovedProduct = _items[toBeRemovedProductIndex];
@@ -145,6 +146,27 @@ class Products with ChangeNotifier {
     //   _items.insert(toBeRemovedProductIndex, toBeRemovedProduct);
     //   notifyListeners();
     // });
+
+    // ===== [WORKING] =====
+    http.delete(url).then((response) {
+      print('removeProduct..... ${response.statusCode}');
+
+      // statuscode that is >=400 is error status code
+      if (response.statusCode >= 400) {
+        // since server does not throw error for DELETE (when something goes wrong),
+        // we need to throw our own error. In this case, we need to create
+        // our own custom `Exception` class implementing `Exception` absctract class
+        // Exception thrown will be then catch by the following `catchError`
+        throw HttpException('Delete product failed!');
+      }
+
+      toBeRemovedProduct = null;
+    }).catchError((err) {
+      _items.insert(toBeRemovedProductIndex, toBeRemovedProduct);
+      notifyListeners();
+    });
+
+    _items.removeAt(toBeRemovedProductIndex);
 
     notifyListeners();
   }
