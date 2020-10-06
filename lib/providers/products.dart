@@ -123,7 +123,7 @@ class Products with ChangeNotifier {
     }
   }
 
-  void removeProduct(String id) {
+  void removeProduct(String id) async {
     // implements `optimistic updating`: UI behaves an immediate update eventhough
     // it has not yet received confirmation from the server
     // In this case, it will immediately remove the item, and then send request to server
@@ -148,27 +148,25 @@ class Products with ChangeNotifier {
     // });
 
     // ===== [WORKING] =====
-    http.delete(url).then((response) {
-      print('removeProduct..... ${response.statusCode}');
+    _items.removeAt(toBeRemovedProductIndex);
+    notifyListeners();
 
-      // statuscode that is >=400 is error status code
-      if (response.statusCode >= 400) {
-        // since server does not throw error for DELETE (when something goes wrong),
-        // we need to throw our own error. In this case, we need to create
-        // our own custom `Exception` class implementing `Exception` absctract class
-        // Exception thrown will be then catch by the following `catchError`
-        throw HttpException('Delete product failed!');
-      }
+    final response = await http.delete(url);
+    print('removeProduct..... ${response.statusCode}');
 
-      toBeRemovedProduct = null;
-    }).catchError((err) {
+    // statuscode that is >=400 is error status code
+    if (response.statusCode >= 400) {
+      // since server does not throw error for DELETE (when something goes wrong),
+      // we need to throw our own error. In this case, we need to create
+      // our own custom `Exception` class implementing `Exception` absctract class
+      // Exception thrown will be then catch by the following `catchError`
+
       _items.insert(toBeRemovedProductIndex, toBeRemovedProduct);
       notifyListeners();
-    });
 
-    _items.removeAt(toBeRemovedProductIndex);
-
-    notifyListeners();
+      throw HttpException('Delete product failed!');
+    }
+    toBeRemovedProduct = null;
   }
 
   // void showFavorite() {
