@@ -123,7 +123,7 @@ class Products with ChangeNotifier {
     }
   }
 
-  void removeProduct(String id) async {
+  Future<void> removeProduct(String id) async {
     // implements `optimistic updating`: UI behaves an immediate update eventhough
     // it has not yet received confirmation from the server
     // In this case, it will immediately remove the item, and then send request to server
