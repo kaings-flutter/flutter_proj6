@@ -123,7 +123,28 @@ class Products with ChangeNotifier {
   }
 
   void removeProduct(String id) {
-    _items.removeWhere((item) => item.id == id);
+    // implements `optimistic updating`: UI behaves an immediate update eventhough
+    // it has not yet received confirmation from the server
+    // In this case, it will immediately remove the item, and then send request to server
+    // if error occurs, the removed item will be restored
+
+    final url = 'https://kaings-flutter-proj6.firebaseio.com/products/$id.json';
+    final toBeRemovedProductIndex =
+        _items.indexWhere((product) => product.id == id);
+    var toBeRemovedProduct = _items[toBeRemovedProductIndex];
+
+    // this won't work. Because normally if there is error occured in server,
+    // the error will be thrown (in case of POST). But, server does not throw
+    // any error in case of DELETE, which is why we need to manually check
+    // the error status code
+
+    // ===== [NOT WORKING] =====
+    // http.delete(url).then((response) {
+    //   toBeRemovedProduct = null;
+    // }).catchError((err) {
+    //   _items.insert(toBeRemovedProductIndex, toBeRemovedProduct);
+    //   notifyListeners();
+    // });
 
     notifyListeners();
   }
