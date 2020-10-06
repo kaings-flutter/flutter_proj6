@@ -129,7 +129,9 @@ class Products with ChangeNotifier {
     // In this case, it will immediately remove the item, and then send request to server
     // if error occurs, the removed item will be restored
 
-    final url = 'https://kaings-flutter-proj6.firebaseio.com/products/$id';
+    // final url = 'https://kaings-flutter-proj6.firebaseio.com/products/$id';  // test error
+    final url = 'https://kaings-flutter-proj6.firebaseio.com/products/$id.json';
+
     final toBeRemovedProductIndex =
         _items.indexWhere((product) => product.id == id);
     var toBeRemovedProduct = _items[toBeRemovedProductIndex];
